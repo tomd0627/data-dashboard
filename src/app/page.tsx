@@ -1,15 +1,46 @@
 "use client";
 
-import { ChannelBarChart } from "@/components/dashboard/ChannelBarChart";
+import dynamic from "next/dynamic";
+
 import { KpiGrid } from "@/components/dashboard/KpiGrid";
-import { MauAreaChart } from "@/components/dashboard/MauAreaChart";
-import { PlanDonutChart } from "@/components/dashboard/PlanDonutChart";
-import { RetentionHeatmap } from "@/components/dashboard/RetentionHeatmap";
-import { RevenueLineChart } from "@/components/dashboard/RevenueLineChart";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { channelsData, kpiData, plansData, retentionData } from "@/data";
 import { useTimeRange } from "@/hooks/useTimeRange";
+
+function ChartSkeleton() {
+  return (
+    <div
+      className="skeleton"
+      style={{ borderRadius: "12px", minHeight: "340px" }}
+    />
+  );
+}
+
+const RevenueLineChart = dynamic(
+  () => import("@/components/dashboard/RevenueLineChart").then((m) => m.RevenueLineChart),
+  { loading: () => <ChartSkeleton />, ssr: false }
+);
+
+const ChannelBarChart = dynamic(
+  () => import("@/components/dashboard/ChannelBarChart").then((m) => m.ChannelBarChart),
+  { loading: () => <ChartSkeleton />, ssr: false }
+);
+
+const PlanDonutChart = dynamic(
+  () => import("@/components/dashboard/PlanDonutChart").then((m) => m.PlanDonutChart),
+  { loading: () => <ChartSkeleton />, ssr: false }
+);
+
+const RetentionHeatmap = dynamic(
+  () => import("@/components/dashboard/RetentionHeatmap").then((m) => m.RetentionHeatmap),
+  { loading: () => <ChartSkeleton />, ssr: false }
+);
+
+const MauAreaChart = dynamic(
+  () => import("@/components/dashboard/MauAreaChart").then((m) => m.MauAreaChart),
+  { loading: () => <ChartSkeleton />, ssr: false }
+);
 
 export default function DashboardPage() {
   const { timeRange, setTimeRange, getFilteredRevenue } = useTimeRange();
