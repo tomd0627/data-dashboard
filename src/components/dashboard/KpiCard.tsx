@@ -120,7 +120,7 @@ export function KpiCard({ data }: KpiCardProps) {
         {/* Decorative sparkline */}
         <div aria-hidden="true" style={{ width: 80, height: 32 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data.sparkline}>
+            <LineChart data={data.sparkline} tabIndex={-1}>
               <Line
                 type="monotone"
                 dataKey="value"
