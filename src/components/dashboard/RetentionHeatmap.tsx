@@ -3,6 +3,7 @@
 import { useReducedMotion } from "framer-motion";
 import { useRef, useState, useCallback, type KeyboardEvent } from "react";
 import { ChartCard } from "./ChartCard";
+import { useTheme } from "@/components/providers/ThemeProvider";
 import type { RetentionCohort } from "@/types";
 
 const WEEK_LABELS = ["Wk 1", "Wk 2", "Wk 3", "Wk 4", "Wk 5", "Wk 6", "Wk 7", "Wk 8"];
@@ -15,7 +16,12 @@ function getRetentionColor(pct: number): string {
   return `rgba(245, 158, 11, ${opacity.toFixed(2)})`;
 }
 
-function getTextColor(pct: number): string {
+function getTextColor(pct: number, isDark: boolean): string {
+  if (isDark) {
+    // In dark mode, amber backgrounds in the mid-range (~56–63%) fail contrast
+    // with both black and white unless we split at the crossover (~64%).
+    return pct > 63 ? "#000000" : "#ffffff";
+  }
   return pct > 55 ? "rgba(0,0,0,0.85)" : "var(--color-text-base)";
 }
 
@@ -25,6 +31,8 @@ interface RetentionHeatmapProps {
 
 export function RetentionHeatmap({ data }: RetentionHeatmapProps) {
   const prefersReduced = useReducedMotion();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [focusedCell, setFocusedCell] = useState<[number, number]>([0, 0]);
   const cellRefs = useRef<(HTMLDivElement | null)[][]>(
     data.map(() => Array(8).fill(null))
@@ -162,7 +170,7 @@ export function RetentionHeatmap({ data }: RetentionHeatmapProps) {
                       justifyContent: "center",
                       fontSize: "0.6875rem",
                       fontWeight: 600,
-                      color: getTextColor(pct),
+                      color: getTextColor(pct, isDark),
                       cursor: "default",
                       opacity: 0,
                       animation: prefersReduced
