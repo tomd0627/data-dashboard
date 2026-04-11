@@ -1,4 +1,4 @@
-import type { KpiData } from "@/types";
+import type { KpiData, RevenueDataPoint } from "@/types";
 
 export const kpiData: KpiData[] = [
   {
@@ -86,3 +86,61 @@ export const kpiData: KpiData[] = [
     ],
   },
 ];
+
+/**
+ * Derive KPI card data dynamically from a filtered revenue slice.
+ * MRR, customers (MAU proxy), and ARPU update with the selected time range.
+ * Churn has no time-series source so it remains static.
+ */
+export function deriveKpiFromRevenue(slice: RevenueDataPoint[]): KpiData[] {
+  if (slice.length === 0) return kpiData;
+
+  const first = slice[0];
+  const last  = slice[slice.length - 1];
+  const pct   = (a: number, b: number) =>
+    b !== 0 ? +((a - b) / b * 100).toFixed(1) : 0;
+
+  const firstArpu = first.mrr / first.mau;
+  const lastArpu  = last.mrr  / last.mau;
+
+  return [
+    {
+      id: "mrr",
+      label: "Monthly Recurring Revenue",
+      value: last.mrr,
+      formatted: `$${last.mrr.toLocaleString("en-US")}`,
+      delta: pct(last.mrr, first.mrr),
+      deltaPositive: last.mrr >= first.mrr,
+      deltaLabel: "vs period start",
+      icon: "TrendingUp",
+      colorIndex: 0,
+      sparkline: slice.map((d) => ({ value: d.mrr })),
+    },
+    {
+      id: "customers",
+      label: "Active Customers",
+      value: last.mau,
+      formatted: last.mau.toLocaleString("en-US"),
+      delta: pct(last.mau, first.mau),
+      deltaPositive: last.mau >= first.mau,
+      deltaLabel: "vs period start",
+      icon: "Users",
+      colorIndex: 1,
+      sparkline: slice.map((d) => ({ value: d.mau })),
+    },
+    {
+      id: "arpu",
+      label: "Avg Revenue Per User",
+      value: lastArpu,
+      formatted: `$${lastArpu.toFixed(2)}`,
+      delta: pct(lastArpu, firstArpu),
+      deltaPositive: lastArpu >= firstArpu,
+      deltaLabel: "vs period start",
+      icon: "DollarSign",
+      colorIndex: 2,
+      sparkline: slice.map((d) => ({ value: d.mrr / d.mau })),
+    },
+    // Churn has no time-series source — keep static
+    kpiData[3],
+  ];
+}

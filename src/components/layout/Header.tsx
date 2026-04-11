@@ -3,14 +3,17 @@
 import { BarChart2 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { TimeRangeSelector } from "@/components/dashboard/TimeRangeSelector";
+import { DataSourceToggle, type DataSource } from "@/components/layout/DataSourceToggle";
 import type { TimeRange } from "@/types";
 
 interface HeaderProps {
   timeRange: TimeRange;
   onTimeRangeChange: (range: TimeRange) => void;
+  dataSource: DataSource;
+  onDataSourceChange: (source: DataSource) => void;
 }
 
-export function Header({ timeRange, onTimeRangeChange }: HeaderProps) {
+export function Header({ timeRange, onTimeRangeChange, dataSource, onDataSourceChange }: HeaderProps) {
   return (
     <header
       role="banner"
@@ -28,9 +31,10 @@ export function Header({ timeRange, onTimeRangeChange }: HeaderProps) {
         style={{
           maxWidth: "1400px",
           margin: "0 auto",
-          padding: "0 1.5rem",
-          height: "60px",
+          padding: "0.5rem 1.5rem",
+          minHeight: "60px",
           display: "flex",
+          flexWrap: "wrap",
           alignItems: "center",
           gap: "1rem",
         }}
@@ -55,12 +59,20 @@ export function Header({ timeRange, onTimeRangeChange }: HeaderProps) {
           </span>
         </div>
 
-        {/* Spacer */}
+        {/* Spacer — collapses on mobile so controls wrap to their own row */}
         <div style={{ flex: 1 }} />
 
-        {/* Controls */}
-        <TimeRangeSelector value={timeRange} onChange={onTimeRangeChange} />
-        <ThemeToggle />
+        {/* Controls group — wraps to full-width row on narrow viewports */}
+        <div className="header-controls" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <DataSourceToggle value={dataSource} onChange={onDataSourceChange} />
+          <div
+            aria-hidden="true"
+            className="header-separator"
+            style={{ width: "1px", height: "20px", background: "var(--color-border-subtle)", flexShrink: 0 }}
+          />
+          <TimeRangeSelector value={timeRange} onChange={onTimeRangeChange} />
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

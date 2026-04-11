@@ -8,6 +8,7 @@ import { LineChart, Line, ResponsiveContainer } from "recharts";
 
 import { Badge } from "@/components/ui/Badge";
 import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
+import { formatCompact } from "@/lib/utils";
 import type { KpiData } from "@/types";
 
 const ICONS = { TrendingUp, Users, DollarSign, Activity };
@@ -20,9 +21,16 @@ const COLOR_VARS = [
 ];
 
 function formatCounterValue(raw: number, kpi: KpiData): string {
-  if (kpi.id === "arpu")   return `$${raw.toFixed(2)}`;
-  if (kpi.id === "churn")  return `${raw.toFixed(1)}%`;
-  if (kpi.id === "mrr")    return `$${Math.round(raw).toLocaleString("en-US")}`;
+  // Explicit format field takes precedence over id-based fallback
+  if (kpi.format === "currency")         return `$${Math.round(raw).toLocaleString("en-US")}`;
+  if (kpi.format === "currency-decimal") return `$${raw.toFixed(2)}`;
+  if (kpi.format === "percent")          return `${raw.toFixed(1)}%`;
+  if (kpi.format === "compact")          return formatCompact(raw);
+  if (kpi.format === "number")           return Math.round(raw).toLocaleString("en-US");
+  // Legacy id-based fallback (backward compatible with existing mock data)
+  if (kpi.id === "arpu")  return `$${raw.toFixed(2)}`;
+  if (kpi.id === "churn") return `${raw.toFixed(1)}%`;
+  if (kpi.id === "mrr")   return `$${Math.round(raw).toLocaleString("en-US")}`;
   return Math.round(raw).toLocaleString("en-US");
 }
 

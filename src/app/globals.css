@@ -102,6 +102,27 @@ body {
   }
 }
 
+/* ─── Header responsive controls ──────────────────────────────── */
+
+@media (max-width: 540px) {
+  /* Controls wrap to a second row — tighten gap and go full-width */
+  .header-controls {
+    width: 100%;
+    gap: 0.75rem;
+    padding-bottom: 0.375rem;
+  }
+
+  /* Separator between toggle groups adds no value when stacked */
+  .header-separator {
+    display: none;
+  }
+
+  /* Live data source badge is redundant on small screens */
+  .datasource-badge {
+    display: none;
+  }
+}
+
 /* ─── Focus ────────────────────────────────────────────────────── */
 
 :focus-visible {

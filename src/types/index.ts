@@ -19,6 +19,8 @@ export interface KpiData {
   /** Series color token index (1–7) */
   colorIndex: number;
   sparkline: SparklinePoint[];
+  /** Optional override for animated counter formatting */
+  format?: "currency" | "currency-decimal" | "number" | "compact" | "percent";
 }
 
 // ─── Revenue / Time Series ──────────────────────────────────────

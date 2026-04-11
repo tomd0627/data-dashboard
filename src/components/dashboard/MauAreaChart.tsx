@@ -18,25 +18,39 @@ import type { RevenueDataPoint } from "@/types";
 
 import { ChartCard } from "./ChartCard";
 
-const LEGEND = [
+const MOCK_LEGEND = [
   { label: "Monthly Active Users", color: "var(--color-series-2)" },
   { label: "Weekly Active Users",  color: "var(--color-series-1)" },
 ];
 
+const LIVE_LEGEND = [
+  { label: "Monthly Downloads", color: "var(--color-series-2)" },
+  { label: "Weekly Downloads",  color: "var(--color-series-1)" },
+];
+
 interface MauAreaChartProps {
   data: RevenueDataPoint[];
+  isLive?: boolean;
 }
 
-export function MauAreaChart({ data }: MauAreaChartProps) {
+export function MauAreaChart({ data, isLive = false }: MauAreaChartProps) {
   const prefersReduced = useReducedMotion();
+  const legend   = isLive ? LIVE_LEGEND : MOCK_LEGEND;
+  const title    = isLive ? "Download Engagement"                   : "User Engagement";
+  const subtitle = isLive ? "Monthly and weekly npm download trends" : "Monthly and weekly active user trends";
+  const summary  = isLive
+    ? "Live download engagement from the npm registry. Monthly and weekly download volumes shown for the selected period."
+    : "WAU/MAU stickiness ratio climbed from 22% in January to 38% in December — a significant improvement driven by the Q3 feature release and subsequent product improvements.";
+  const mauName  = isLive ? "Monthly Downloads" : "Monthly Active Users";
+  const wauName  = isLive ? "Weekly Downloads"  : "Weekly Active Users";
 
   return (
     <ChartCard
       id="mau-chart-title"
-      title="User Engagement"
-      subtitle="Monthly and weekly active user trends"
-      summary="WAU/MAU stickiness ratio climbed from 22% in January to 38% in December — a significant improvement driven by the Q3 feature release and subsequent product improvements."
-      legend={LEGEND}
+      title={title}
+      subtitle={subtitle}
+      summary={summary}
+      legend={legend}
     >
       <ResponsiveContainer width="100%" height={260}>
         <AreaChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
@@ -54,13 +68,13 @@ export function MauAreaChart({ data }: MauAreaChartProps) {
           <XAxis dataKey="month" {...axisStyle} />
           <YAxis tickFormatter={formatCompact} {...axisStyle} width={40} />
           <Tooltip
-            content={<ChartTooltip valueFormatter={(v) => formatCompact(v)} />}
+            content={<ChartTooltip valueFormatter={formatCompact} />}
             wrapperStyle={{ pointerEvents: "none" }}
           />
           <Area
             type="monotone"
             dataKey="mau"
-            name="Monthly Active Users"
+            name={mauName}
             stroke="var(--color-series-2)"
             strokeWidth={2}
             fill="url(#mauGradient)"
@@ -72,7 +86,7 @@ export function MauAreaChart({ data }: MauAreaChartProps) {
           <Area
             type="monotone"
             dataKey="wau"
-            name="Weekly Active Users"
+            name={wauName}
             stroke="var(--color-series-1)"
             strokeWidth={2}
             fill="url(#wauGradient)"

@@ -1,12 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import dynamic from "next/dynamic";
 
 import { KpiGrid } from "@/components/dashboard/KpiGrid";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
-import { channelsData, kpiData, plansData, retentionData } from "@/data";
+import type { DataSource } from "@/components/layout/DataSourceToggle";
+import { channelsData, plansData, retentionData } from "@/data";
+import { deriveKpiFromRevenue } from "@/data/kpi";
 import { useTimeRange } from "@/hooks/useTimeRange";
+import { useNpmData, deriveKpiFromNpm } from "@/hooks/useNpmData";
 
 function ChartSkeleton() {
   return (
@@ -43,12 +47,28 @@ const MauAreaChart = dynamic(
 );
 
 export default function DashboardPage() {
+  const [dataSource, setDataSource] = useState<DataSource>("mock");
   const { timeRange, setTimeRange, getFilteredRevenue } = useTimeRange();
-  const revenueFiltered = getFilteredRevenue();
+  const npm = useNpmData("react");
+
+  const isLive = dataSource === "live";
+  const liveFiltered = getFilteredRevenue(npm.data ?? undefined);
+  const revenueFiltered = isLive ? liveFiltered : getFilteredRevenue();
+  const kpiCards = isLive
+    ? deriveKpiFromNpm(liveFiltered)
+    : deriveKpiFromRevenue(revenueFiltered);
+
+  // Show skeletons for the data-driven charts while live data loads
+  const showSkeleton = isLive && npm.loading;
 
   return (
     <>
-      <Header timeRange={timeRange} onTimeRangeChange={setTimeRange} />
+      <Header
+        timeRange={timeRange}
+        onTimeRangeChange={setTimeRange}
+        dataSource={dataSource}
+        onDataSourceChange={setDataSource}
+      />
 
       <main
         id="main-content"
@@ -66,7 +86,7 @@ export default function DashboardPage() {
           <h2 id="kpi-heading" className="sr-only">
             Key Performance Indicators
           </h2>
-          <KpiGrid data={kpiData} />
+          <KpiGrid data={kpiCards} />
         </section>
 
         {/* Top chart row */}
@@ -78,7 +98,11 @@ export default function DashboardPage() {
             gap: "1rem",
           }}
         >
-          <RevenueLineChart data={revenueFiltered} />
+          {showSkeleton ? (
+            <ChartSkeleton />
+          ) : (
+            <RevenueLineChart data={revenueFiltered} isLive={isLive} />
+          )}
           <ChannelBarChart data={channelsData} />
         </section>
 
@@ -97,11 +121,15 @@ export default function DashboardPage() {
 
         {/* Full-width area chart */}
         <section aria-label="User engagement trend">
-          <MauAreaChart data={revenueFiltered} />
+          {showSkeleton ? (
+            <ChartSkeleton />
+          ) : (
+            <MauAreaChart data={revenueFiltered} isLive={isLive} />
+          )}
         </section>
       </main>
 
-      <Footer />
+      <Footer isLive={isLive} />
     </>
   );
 }

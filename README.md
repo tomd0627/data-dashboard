@@ -28,10 +28,10 @@ An animated, accessible SaaS analytics dashboard built as a front-end portfolio 
 - **5 chart types** with smooth enter animations
 - **Animated KPI counters** using `requestAnimationFrame` with easing
 - **Dark / light mode** — system-preference aware, `localStorage`-persisted
-- **Time range filter** — 7D / 30D / 90D / 1Y
-- **Fully responsive** — mobile-first grid layout
+- **Time range filter** — 7D / 30D / 90D / 1Y, updates all KPI cards and time-series charts
+- **Mock / Live toggle** — switch between fictional SaaS data and real npm registry download stats
+- **Fully responsive** — controls wrap to a second header row on mobile
 - **SVG favicon** — amber bar chart mark
-- **Zero external API calls** — all data is typed TypeScript mock files
 
 ## Accessibility
 
@@ -45,14 +45,16 @@ WCAG 2.1 AA target throughout:
 - Color is never the sole means of conveying information (delta badges use icon + text + color)
 - Full `prefers-reduced-motion` support — all animations are disabled or instant when requested
 
-## Mock Data Domain
+## Data Sources
 
-Fictitious B2B SaaS company ("Pulse Analytics") metrics over 12 months in 2024. The data tells a coherent story:
+**Mock mode (default):** Fictitious B2B SaaS company ("Pulse Analytics") metrics over 12 months in 2024. The data tells a coherent story:
 
 - MRR grew 181% YoY ($42K → $118K)
 - A product fix in September improved Week 4–8 cohort retention
 - SEO overtook paid search as the top acquisition channel in Q3
 - Enterprise accounts (9% of customers) drive ~39% of MRR
+
+**Live mode:** Fetches the past year of download counts for the `react` package from the [npm registry public API](https://github.com/npm/registry/blob/main/docs/download-counts.md) (no authentication required). Daily counts are aggregated into monthly totals and mapped onto the same dashboard shape — KPI cards, the Revenue Trend chart, and the User Engagement chart all reflect real data. The acquisition channel, plan distribution, and retention heatmap remain illustrative.
 
 ## Running Locally
 

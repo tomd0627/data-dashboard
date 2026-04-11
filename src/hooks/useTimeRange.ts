@@ -15,9 +15,9 @@ const RANGE_MONTHS: Record<TimeRange, number> = {
 export function useTimeRange() {
   const [timeRange, setTimeRange] = useState<TimeRange>("1y");
 
-  function getFilteredRevenue(): RevenueDataPoint[] {
+  function getFilteredRevenue(override?: RevenueDataPoint[]): RevenueDataPoint[] {
     const months = RANGE_MONTHS[timeRange];
-    return revenueData.slice(-months);
+    return (override ?? revenueData).slice(-months);
   }
 
   return { timeRange, setTimeRange, getFilteredRevenue };
